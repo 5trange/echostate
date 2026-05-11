@@ -1,7 +1,5 @@
 package main
 
-import "fmt"
-
 func main() {
-	fmt.Println("Hello from the EchoState Sensor!")
+	// The main method will ask for a scanner and start reading from it.
 }
