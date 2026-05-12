@@ -44,7 +44,7 @@ func (s *DarwinScanner) GetReading() (*models.RFReading, error) {
 	rssi := int(val)
 
 	if rssi == 0 {
-		return nil, fmt.Errorf("wi-fi not connected")
+		return nil, fmt.Errorf("WiFi is not connected.")
 	}
 
 	return &models.RFReading{
