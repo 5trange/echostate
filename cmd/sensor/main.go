@@ -15,6 +15,24 @@ import (
 //go:embed banner.txt
 var banner string
 
+// Some colors!
+const (
+	ColorReset  = "\033[0m"
+	ColorRed    = "\033[31m"
+	ColorGreen  = "\033[32m"
+	ColorYellow = "\033[33m"
+)
+
+// getRSSIColor returns the color to use for a given RSSI value
+func getRSSIColor(rssi int) string {
+	if rssi >= -50 {
+		return ColorGreen // Excellent
+	} else if rssi >= -70 {
+		return ColorYellow // Good
+	}
+	return ColorRed // Weak
+}
+
 func main() {
 	// The main method will ask for a scanner and start reading from it.
 	// But before we begin, some ART!
@@ -46,7 +64,8 @@ func main() {
 				continue
 			}
 
-			fmt.Printf("\rCurrent Signal Strength: %d dBm   ", reading.RSSI)
+			color := getRSSIColor(reading.RSSI)
+			fmt.Printf("\rCurrent Signal Strength: %s%d dBm%s   ", color, reading.RSSI, ColorReset)
 		}
 	}
 }
