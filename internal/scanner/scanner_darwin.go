@@ -58,7 +58,8 @@ type DarwinScanner struct {
 func (s *DarwinScanner) GetReading() (*models.RFReading, error) {
 	// Darwin-specific implementation of the GetReading function
 	metrics := C.get_wifi_metrics()
-	rssi := int(metrics.rssi) // Get the RSSI value from the metrics struct.
+	rssi := int(metrics.rssi)   // Get the RSSI value from the metrics struct.
+	noise := int(metrics.noise) // Get the noise value from the metrics struct.
 
 	// Check if RSSI is 0. If it is 0, WiFi interface is likely disconnected.
 	if rssi == 0 {
@@ -68,8 +69,8 @@ func (s *DarwinScanner) GetReading() (*models.RFReading, error) {
 	return &models.RFReading{
 		Timestamp: time.Now().UnixMilli(),
 		RSSI:      rssi,
-		Noise:     int(metrics.noise),
-		SNR:       rssi - int(metrics.noise), // Get the SNR value by minusing noise from RSSI.
+		Noise:     noise,
+		SNR:       rssi - noise, // Get the SNR value by minusing noise from RSSI.
 		TxRate:    float64(metrics.txRate),
 		Channel:   int(metrics.channel),
 	}, nil

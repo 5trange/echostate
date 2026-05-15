@@ -65,7 +65,7 @@ func main() {
 			}
 
 			color := getRSSIColor(reading.RSSI)
-			fmt.Printf("\rRSSI: %s%d dBm%s | Noise: %d dBm | SNR: %d | Speed: %.1f Mbps | Ch: %d   ",
+			fmt.Printf("\rRSSI: %s%d dBm%s | Noise: %d dBm | SNR: %d dB | Speed: %.1f Mbps | Ch: %d   ",
 				color, reading.RSSI, ColorReset, reading.Noise, reading.SNR, reading.TxRate, reading.Channel)
 		}
 	}
