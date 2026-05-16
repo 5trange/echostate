@@ -65,13 +65,11 @@ func main() {
 				log.Printf("Missed reading: %v", err)
 				continue
 			}
-
 			buffer.Insert(reading.SNR)
-			avgSNR := buffer.GetSMA()
 
 			color := getRSSIColor(reading.RSSI)
-			fmt.Printf("\rRSSI: %s%d dBm%s | Noise: %d dBm | SNR: %d dB | SMA: %.1f dB | Speed: %.1f Mbps | Ch: %d   ",
-				color, reading.RSSI, ColorReset, reading.Noise, reading.SNR, avgSNR, reading.TxRate, reading.Channel)
+			fmt.Printf("\r%s RSSI: %s%d dBm%s | Noise: %d dBm | SNR: %d dB | SMA: %.1f dB | Speed: %.1f Mbps | Ch: %d   ",
+				buffer.GetSparkline(), color, reading.RSSI, ColorReset, reading.Noise, reading.SNR, buffer.GetSMA(), reading.TxRate, reading.Channel)
 		}
 	}
 }

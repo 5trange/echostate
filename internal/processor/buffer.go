@@ -1,6 +1,8 @@
 // internal/processor/buffer.go
 package processor
 
+import "strings"
+
 type SignalBuffer struct {
 	reading []int
 	size    int
@@ -17,6 +19,7 @@ func NewSignalBuffer(size int) *SignalBuffer {
 	}
 }
 
+// Inserts a value into the buffer
 func (b *SignalBuffer) Insert(rssi int) {
 	b.reading[b.head] = rssi
 
@@ -29,6 +32,7 @@ func (b *SignalBuffer) Insert(rssi int) {
 	}
 }
 
+// This gets the average from the values in the ring buffer.
 func (b *SignalBuffer) GetSMA() float64 {
 	if b.count == 0 {
 		return 0.0
@@ -40,4 +44,45 @@ func (b *SignalBuffer) GetSMA() float64 {
 	}
 	// Cast both to float64 because the function returns float64
 	return float64(sum) / float64(b.count)
+}
+
+// Helper function to draw the sparkline graph
+// For a unicode sparkline graph the available characters are
+// ▂▃▅▆▇█ 0-7 indexes
+func normalizeSNR(snr int) int {
+	// Handle the edgecases, do not try to normalize these values
+	if snr <= 10 {
+		return 0
+	} else if snr >= 60 {
+		return 7
+	}
+
+	// We need to normalize whatever value of SNR this is
+	// scaled = ((value - min) * max_index) / (max - min)
+	scaled := ((snr - 10) * 7) / 50
+	return scaled
+}
+
+func (b *SignalBuffer) GetSparkline() string {
+	var sb strings.Builder
+	sb.Grow(b.size * 4) // Unicode characters take 4 bytes each, so we multiply the size by 4
+
+	blocks := []rune{' ', '▂', '▃', '▄', '▅', '▆', '▇', '█'}
+
+	startIndex := 0
+	if b.count == b.size {
+		startIndex = b.head
+	}
+
+	// Add the padding so the TUI doesn't look weird when we start
+	for range b.size - b.count {
+		sb.WriteString(" ")
+	}
+
+	for i := 0; i < b.count; i++ {
+		readIndex := (startIndex + i) % b.size
+		normalizedSNR := normalizeSNR(b.reading[readIndex])
+		sb.WriteRune(blocks[normalizedSNR])
+	}
+	return sb.String()
 }
