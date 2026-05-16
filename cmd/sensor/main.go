@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/5trange/echostate/internal/processor"
 	"github.com/5trange/echostate/internal/scanner"
 )
 
@@ -40,6 +41,7 @@ func main() {
 
 	// Create a new WiFi scanner
 	wifiScanner := scanner.NewScanner()
+	buffer := processor.NewSignalBuffer(20) // Setting the count to 20 ie. data worth 10 seconds
 
 	// Poll the scanner at a regular interval (twice every second in this case)
 	ticker := time.NewTicker(500 * time.Millisecond)
@@ -64,9 +66,12 @@ func main() {
 				continue
 			}
 
+			buffer.Insert(reading.SNR)
+			avgSNR := buffer.GetSMA()
+
 			color := getRSSIColor(reading.RSSI)
-			fmt.Printf("\rRSSI: %s%d dBm%s | Noise: %d dBm | SNR: %d dB | Speed: %.1f Mbps | Ch: %d   ",
-				color, reading.RSSI, ColorReset, reading.Noise, reading.SNR, reading.TxRate, reading.Channel)
+			fmt.Printf("\rRSSI: %s%d dBm%s | Noise: %d dBm | SNR: %d dB | SMA: %.1f dB | Speed: %.1f Mbps | Ch: %d   ",
+				color, reading.RSSI, ColorReset, reading.Noise, reading.SNR, avgSNR, reading.TxRate, reading.Channel)
 		}
 	}
 }
